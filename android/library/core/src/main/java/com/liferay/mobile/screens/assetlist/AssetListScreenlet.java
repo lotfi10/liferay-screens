@@ -17,6 +17,8 @@ package com.liferay.mobile.screens.assetlist;
 import android.content.Context;
 import android.content.res.TypedArray;
 
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 
 import android.view.LayoutInflater;
@@ -67,11 +69,11 @@ public class AssetListScreenlet
 		return interactor;
 	}
 
-	public void load(int page) {
+	public void load(long groupId, long classNameId) {
 		Locale locale = getResources().getConfiguration().locale;
 
 		try {
-			getInteractor().loadPage(_groupId, _classNameId, page, locale);
+			getInteractor().loadPage(groupId, classNameId, 0, locale);
 		}
 		catch (Exception e) {
 			onAssetListLoadFailure(e);
@@ -116,23 +118,17 @@ public class AssetListScreenlet
 	}
 
 	@Override
-	protected View createScreenletView(
-		Context context, AttributeSet attributes) {
+	protected void onCreateScreenletView(
+		Context context, View view, AttributeSet attributes) {
 
 		TypedArray typedArray = context.getTheme().obtainStyledAttributes(
 			attributes, R.styleable.AssetListScreenlet, 0, 0);
-
-		int layoutId = typedArray.getResourceId(
-			R.styleable.AssetListScreenlet_layoutId, 0);
 
 		_firstPageSize = typedArray.getInteger(
 			R.styleable.AssetListScreenlet_firstPageSize, _FIRST_PAGE_SIZE);
 
 		_pageSize = typedArray.getInteger(
 			R.styleable.AssetListScreenlet_pageSize, _PAGE_SIZE);
-
-		_autoLoad = typedArray.getBoolean(
-			R.styleable.AssetListScreenlet_autoLoad, true);
 
 		_classNameId = typedArray.getInt(
 			R.styleable.AssetListScreenlet_classNameId, 0);
@@ -142,23 +138,19 @@ public class AssetListScreenlet
 			(int)LiferayServerContext.getGroupId());
 
 		typedArray.recycle();
-
-		return LayoutInflater.from(getContext()).inflate(layoutId, null);
 	}
 
 	@Override
-	protected void onScreenletAttached() {
-		super.onScreenletAttached();
+	protected void onAutoLoad() {
+		super.onAutoLoad();
 
-		if (_autoLoad) {
-			Locale locale = getResources().getConfiguration().locale;
+		Locale locale = getResources().getConfiguration().locale;
 
-			try {
-				getInteractor().loadPage(_groupId, _classNameId, 0, locale);
-			}
-			catch (Exception e) {
-				onAssetListLoadFailure(e);
-			}
+		try {
+			getInteractor().loadPage(_groupId, _classNameId, 0, locale);
+		}
+		catch (Exception e) {
+			onAssetListLoadFailure(e);
 		}
 	}
 
@@ -166,11 +158,30 @@ public class AssetListScreenlet
 	protected void onUserAction(String userActionName) {
 	}
 
+	@Override
+	protected Parcelable onSaveInstanceState() {
+		Parcelable superState = super.onSaveInstanceState();
+
+		Bundle state = new Bundle();
+		state.putParcelable(_STATE_SUPER, superState);
+
+		return state;
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Parcelable inState) {
+		Bundle state = ((Bundle)inState);
+		Parcelable superState = state.getParcelable(_STATE_SUPER);
+
+		super.onRestoreInstanceState(superState);
+	}
+
+	private static final String _STATE_SUPER = "super";
+
 	private static final int _FIRST_PAGE_SIZE = 50;
 
 	private static final int _PAGE_SIZE = 25;
 
-	private boolean _autoLoad;
 	private int _classNameId;
 	private int _firstPageSize;
 	private int _groupId;

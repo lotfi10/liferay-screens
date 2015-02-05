@@ -119,14 +119,11 @@ public class SignUpScreenlet
 	}
 
 	@Override
-	protected View createScreenletView(
-		Context context, AttributeSet attributes) {
+	protected void onCreateScreenletView(
+		Context context, View view, AttributeSet attributes) {
 
 		TypedArray typedArray = context.getTheme().obtainStyledAttributes(
 			attributes, R.styleable.SignUpScreenlet, 0, 0);
-
-		int layoutId = typedArray.getResourceId(
-			R.styleable.SignUpScreenlet_layoutId, 0);
 
 		_companyId = typedArray.getInt(
 			R.styleable.SignUpScreenlet_companyId,
@@ -138,11 +135,7 @@ public class SignUpScreenlet
 		_anonymousApiPassword = typedArray.getString(
 			R.styleable.SignUpScreenlet_anonymousApiPassword);
 
-		View view = LayoutInflater.from(getContext()).inflate(layoutId, null);
-
 		typedArray.recycle();
-
-		return view;
 	}
 
 	private String _anonymousApiPassword;

@@ -24,7 +24,7 @@ public class LiferayServerContext {
 	}
 
 	public static long getGroupId() {
-		return 10184;
+		return 10181;
 	}
 
 	public static String getServer() {

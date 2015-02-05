@@ -8,16 +8,9 @@
 	android:orientation="vertical"
 	tools:context=".MainActivity">
 
-	<com.liferay.mobile.screens.assetlist.AssetListScreenlet
-		android:id="@+id/assetlist_screenlet"
+	<com.liferay.mobile.screens.auth.login.LoginScreenlet
+		android:id="@+id/login_screenlet"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:layout_gravity="center"
-		android:layout_margin="16dp"
-		liferay:autoLoad="true"
-		liferay:classNameId="10011"
-		liferay:firstPageSize="5"
-		liferay:groupId="10202"
-		liferay:layoutId="@layout/asset_list_default"
-		liferay:pageSize="5" />
+		liferay:layoutId="@layout/login_default" />
 </FrameLayout>

@@ -16,15 +16,18 @@ package com.liferay.mobile.screens.base;
 
 import android.content.Context;
 
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.Parcelable;
 
 import android.util.AttributeSet;
 
+import android.view.LayoutInflater;
 import android.view.View;
 
 import android.widget.FrameLayout;
 
+import com.liferay.mobile.screens.R;
 import com.liferay.mobile.screens.base.interactor.Interactor;
 import com.liferay.mobile.screens.base.view.BaseViewModel;
 
@@ -49,7 +52,21 @@ public abstract class BaseScreenlet<V extends BaseViewModel, I extends Interacto
 
 		super(context, attributes, defaultStyle);
 
-		_screenletView = createScreenletView(context, attributes);
+		TypedArray typedArray = context.getTheme().obtainStyledAttributes(
+			attributes, R.styleable.BaseScreenlet, 0, 0);
+
+		_autoLoad = typedArray.getBoolean(
+			R.styleable.BaseScreenlet_autoLoad, false);
+
+		int layoutId = typedArray.getResourceId(
+			R.styleable.BaseScreenlet_layoutId, 0);
+
+		typedArray.recycle();
+
+		_screenletView =
+			LayoutInflater.from(getContext()).inflate(layoutId, null);
+
+		onCreateScreenletView(context, _screenletView, attributes);
 
 		addView(_screenletView);
 	}
@@ -70,8 +87,8 @@ public abstract class BaseScreenlet<V extends BaseViewModel, I extends Interacto
 		_interactor = interactor;
 	}
 
-	protected abstract View createScreenletView(
-		Context context, AttributeSet attributes);
+	protected abstract void onCreateScreenletView(
+		Context context, View view, AttributeSet attributes);
 
 	protected View getScreenletView() {
 		return _screenletView;
@@ -102,6 +119,8 @@ public abstract class BaseScreenlet<V extends BaseViewModel, I extends Interacto
 
 		super.onRestoreInstanceState(superState);
 
+		System.out.println("BaseScreenlet.onRestoreInstanceState");
+
 		// The screenletId is restored only if it was not generated yet. If the
 		// screenletId already exists at this point, it means that an interactor
 		// is using it, so we cannot restore the previous value. As a side
@@ -114,6 +133,8 @@ public abstract class BaseScreenlet<V extends BaseViewModel, I extends Interacto
 		if (_screenletId == 0) {
 			_screenletId = state.getInt(_STATE_SCREENLET_ID);
 		}
+
+		_autoLoad = state.getBoolean(_STATE_AUTO_LOAD);
 	}
 
 	@Override
@@ -123,11 +144,17 @@ public abstract class BaseScreenlet<V extends BaseViewModel, I extends Interacto
 		Bundle state = new Bundle();
 		state.putParcelable(_STATE_SUPER, superState);
 		state.putInt(_STATE_SCREENLET_ID, _screenletId);
+		state.putBoolean(_STATE_AUTO_LOAD, _autoLoad);
 
 		return state;
 	}
 
 	protected void onScreenletAttached() {
+		if (_autoLoad) {
+			_autoLoad = false;
+
+			onAutoLoad();
+		}
 	}
 
 	protected void onScreenletDetached() {
@@ -150,12 +177,19 @@ public abstract class BaseScreenlet<V extends BaseViewModel, I extends Interacto
 		}
 	}
 
+	protected void onAutoLoad() {
+		System.out.println("BaseScreenlet.onAutoLoad");
+	}
+
+	private static final String _STATE_AUTO_LOAD = "autoLoad";
+
 	private static final String _STATE_SCREENLET_ID = "screenletId";
 
 	private static final String _STATE_SUPER = "super";
 
 	private static final AtomicInteger sNextScreenletId = new AtomicInteger(1);
 
+	private boolean _autoLoad;
 	private I _interactor;
 	private int _screenletId;
 	private View _screenletView;

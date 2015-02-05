@@ -2,41 +2,61 @@ package com.liferay.mobile.screens.testapp;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.widget.Toast;
 
+import com.liferay.mobile.screens.assetlist.AssetListScreenlet;
 import com.liferay.mobile.screens.auth.login.LoginListener;
 import com.liferay.mobile.screens.auth.login.LoginScreenlet;
+import com.liferay.mobile.screens.util.LiferayServerContext;
+import com.liferay.mobile.screens.util.SessionContext;
 
 import org.json.JSONObject;
 
 /**
  * @author Silvio Santos
  */
-public class MainActivity extends Activity
-	implements LoginListener {
+public class MainActivity extends Activity {
+
+	private AssetListScreenlet _screenlet;
 
 	@Override
-	protected void onCreate(Bundle state) {
+	public void onCreate(Bundle state) {
 		super.onCreate(state);
 
 		setContentView(R.layout.activity_main);
 
-		LoginScreenlet loginScreenlet = (LoginScreenlet)findViewById(
-			R.id.login_screenlet);
+		System.out.println("MainActivity.onCreate");
+		_screenlet = (AssetListScreenlet)findViewById(R.id.assetlist_screenlet);
 
-		loginScreenlet.setListener(this);
+//		if (state == null) {
+//			_screenlet.load(10202, 10011);
+//		}
 	}
 
 	@Override
-	public void onLoginFailure(Exception e) {
-		String message = "Failed to login: " + e.getMessage();
+	protected void onResume() {
+		super.onResume();
 
-		Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+		System.out.println("MainActivity.onResume");
 	}
 
 	@Override
-	public void onLoginSuccess(JSONObject userAttributes) {
-		Toast.makeText(this, "Login Success", Toast.LENGTH_SHORT).show();
+	protected void onStop() {
+		super.onStop();
+
+		System.out.println("MainActivity.onStop");
 	}
 
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+
+		System.out.println("MainActivity.onDestroy");
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle state) {
+		super.onRestoreInstanceState(state);
+	}
 }

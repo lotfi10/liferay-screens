@@ -118,7 +118,7 @@ public class WebContentDisplayScreenlet
 		_listener = listener;
 	}
 
-	protected void autoLoad() {
+	protected void onAutoLoad() {
 		if ((_articleId != null) && SessionContext.hasSession()) {
 			try {
 				load();
@@ -129,14 +129,11 @@ public class WebContentDisplayScreenlet
 	}
 
 	@Override
-	protected View createScreenletView(
-		Context context, AttributeSet attributes) {
+	protected void onCreateScreenletView(
+		Context context, View view, AttributeSet attributes) {
 
 		TypedArray typedArray = context.getTheme().obtainStyledAttributes(
 			attributes, R.styleable.WebContentDisplayScreenlet, 0, 0);
-
-		_autoLoad = typedArray.getBoolean(
-			R.styleable.WebContentDisplayScreenlet_autoLoad, true);
 
 		_articleId = typedArray.getString(
 			R.styleable.WebContentDisplayScreenlet_articleId);
@@ -144,26 +141,9 @@ public class WebContentDisplayScreenlet
 		_groupId = typedArray.getInt(
 			R.styleable.WebContentDisplayScreenlet_groupId,
 			(int)LiferayServerContext.getGroupId());
-
-		int layoutId = typedArray.getResourceId(
-			R.styleable.WebContentDisplayScreenlet_layoutId, 0);
-
-		View view = LayoutInflater.from(getContext()).inflate(layoutId, null);
-
-		typedArray.recycle();
-
-		return view;
-	}
-
-	@Override
-	protected void onScreenletAttached() {
-		if (_autoLoad) {
-			autoLoad();
-		}
 	}
 
 	private String _articleId;
-	private boolean _autoLoad;
 	private long _groupId;
 	private WebContentDisplayListener _listener;
 

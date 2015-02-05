@@ -102,16 +102,11 @@ public class LoginScreenlet
 	}
 
 	@Override
-	protected View createScreenletView(
-		Context context, AttributeSet attributes) {
+	protected void onCreateScreenletView(
+		Context context, View view, AttributeSet attributes) {
 
 		TypedArray typedArray = context.getTheme().obtainStyledAttributes(
 			attributes, R.styleable.LoginScreenlet, 0, 0);
-
-		int layoutId = typedArray.getResourceId(
-			R.styleable.LoginScreenlet_layoutId, 0);
-
-		View view = LayoutInflater.from(getContext()).inflate(layoutId, null);
 
 		int authMethod = typedArray.getInt(
 			R.styleable.LoginScreenlet_authMethod, 0);
@@ -120,8 +115,6 @@ public class LoginScreenlet
 		viewModel.setAuthMethod(AuthMethod.getValue(authMethod));
 
 		typedArray.recycle();
-
-		return view;
 	}
 
 	private LoginListener _listener;
