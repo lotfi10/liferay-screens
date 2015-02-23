@@ -16,22 +16,30 @@ import UIKit
 
 @objc public protocol DDLFormScreenletDelegate {
 
-	optional func onFormLoaded(record: DDLRecord)
-	optional func onFormLoadError(error: NSError)
+	optional func onFormLoaded(#source: DDLFormScreenlet, record: DDLRecord)
+	optional func onFormLoadError(#source: DDLFormScreenlet, error: NSError)
 
-	optional func onRecordLoaded(record: DDLRecord)
-	optional func onRecordLoadError(error: NSError)
+	optional func onRecordLoaded(#source: DDLFormScreenlet, record: DDLRecord)
+	optional func onRecordLoadError(#source: DDLFormScreenlet, error: NSError)
 
-	optional func onFormSubmitted(record: DDLRecord)
-	optional func onFormSubmitError(error: NSError)
+	optional func onFormSubmitted(#source: DDLFormScreenlet, record: DDLRecord)
+	optional func onFormSubmitError(#source: DDLFormScreenlet, error: NSError)
 
-	optional func onDocumentUploadStarted(field:DDLFieldDocument)
-	optional func onDocumentUploadedBytes(field:DDLFieldDocument,
+	optional func onDocumentUploadStarted(#source: DDLFormScreenlet, field: DDLFieldDocument)
+	optional func onDocumentUploadedBytes(
+			#source: DDLFormScreenlet,
+			field: DDLFieldDocument,
 			bytes: UInt,
 			sent: Int64,
 			total: Int64)
-	optional func onDocumentUploadCompleted(field:DDLFieldDocument, result:[String:AnyObject])
-	optional func onDocumentUploadError(field:DDLFieldDocument, error: NSError)
+	optional func onDocumentUploadCompleted(
+			#source: DDLFormScreenlet,
+			field: DDLFieldDocument,
+			result:[String:AnyObject])
+	optional func onDocumentUploadError(
+			#source: DDLFormScreenlet,
+			field: DDLFieldDocument,
+			error: NSError)
 
 }
 
@@ -128,7 +136,7 @@ import UIKit
 
 		return loadRecordOperation.validateAndEnqueue() {
 			if let error = $0.lastError {
-				self.delegate?.onRecordLoadError?(error)
+				self.delegate?.onRecordLoadError?(source: self, error: error)
 			}
 			else {
 				if let recordValue = self.formView.record {
@@ -138,7 +146,7 @@ import UIKit
 					// Force didSet event
 					self.formView.record = recordValue
 
-					self.delegate?.onRecordLoaded?(recordValue)
+					self.delegate?.onRecordLoaded?(source: self, record: recordValue)
 				}
 			}
 		}
@@ -164,13 +172,13 @@ import UIKit
 
 		return submitOperation.validateAndEnqueue() {
 			if let error = $0.lastError {
-				self.delegate?.onFormSubmitError?(error)
+				self.delegate?.onFormSubmitError?(source: self, error: error)
 			}
 			else {
 				self.recordId = submitOperation.result!.recordId
 				self.formView.record!.recordId = submitOperation.result!.recordId
 
-				self.delegate?.onFormSubmitted?(self.formView.record!)
+				self.delegate?.onFormSubmitted?(source: self, record: self.formView.record!)
 			}
 		}
 	}
@@ -186,13 +194,13 @@ import UIKit
 
 		loadFormOperation.onComplete = {
 			if let error = $0.lastError {
-				self.delegate?.onFormLoadError?(error)
+				self.delegate?.onFormLoadError?(source: self, error: error)
 			}
 			else {
 				self.userId = loadFormOperation.result!.userId ?? self.userId
 				self.formView.record = loadFormOperation.result!.record
 
-				self.delegate?.onFormLoaded?(self.formView.record!)
+				self.delegate?.onFormLoaded?(source: self, record: self.formView.record!)
 			}
 		}
 
@@ -223,7 +231,7 @@ import UIKit
 					self.formView.showField(document)
 				}
 
-				self.delegate?.onDocumentUploadError?(document, error: error)
+				self.delegate?.onDocumentUploadError?(source: self, field: document, error: error)
 
 				self.uploadStatus = .Failed(error)
 			}
@@ -232,7 +240,9 @@ import UIKit
 
 				self.formView.changeDocumentUploadStatus(document)
 
-				self.delegate?.onDocumentUploadCompleted?(document,
+				self.delegate?.onDocumentUploadCompleted?(
+						source: self,
+						field: document,
 						result: uploadOperation.uploadResult!)
 
 				switch self.uploadStatus {
@@ -255,7 +265,7 @@ import UIKit
 		}
 
 		if result {
-			delegate?.onDocumentUploadStarted?(document)
+			delegate?.onDocumentUploadStarted?(source: self, field: document)
 
 			switch uploadStatus {
 				case .Uploading(let uploadCount, let submitRequested):
@@ -329,7 +339,12 @@ import UIKit
 			case .Uploading(_, _):
 				formView.changeDocumentUploadStatus(document)
 
-				delegate?.onDocumentUploadedBytes?(document, bytes: bytes, sent: sent, total: total)
+				delegate?.onDocumentUploadedBytes?(
+						source: self,
+						field: document,
+						bytes: bytes,
+						sent: sent,
+						total: total)
 
 			default: ()
 		}
