@@ -16,8 +16,8 @@ import UIKit
 
 @objc public protocol WebContentDisplayScreenletDelegate {
 
-	optional func onWebContentResponse(html:String) -> String?
-	optional func onWebContentError(error: NSError)
+	optional func onWebContentResponse(#source: WebContentDisplayScreenlet, html: String) -> String?
+	optional func onWebContentError(#source: WebContentDisplayScreenlet, error: NSError)
 
 }
 
@@ -55,11 +55,13 @@ import UIKit
 
 		return webContentOperation.validateAndEnqueue() {
 			if let error = $0.lastError {
-				self.delegate?.onWebContentError?(error)
+				self.delegate?.onWebContentError?(source: self, error: error)
 			}
 			else {
 				let modifiedHtml =
-						self.delegate?.onWebContentResponse?(webContentOperation.resultHTML!)
+						self.delegate?.onWebContentResponse?(
+								source: self,
+								html: webContentOperation.resultHTML!)
 
 				self.webContentDisplayData.htmlContent =
 						(modifiedHtml != nil) ?
