@@ -77,6 +77,18 @@ public class ForgotPasswordDefaultView extends LinearLayout
 		//TODO show user success?
 	}
 
+	@Override
+	protected void onAttachedToWindow() {
+		_loginEditText.setInputType(_authMethod.getInputType());
+
+		int drawableId = (_authMethod == AuthMethod.EMAIL)
+			? R.drawable.default_mail_icon
+			: R.drawable.default_user_icon;
+
+		_loginEditText.setCompoundDrawablesWithIntrinsicBounds(
+			getResources().getDrawable(drawableId), null, null, null);
+	}
+
 	public void setAuthMethod(AuthMethod authMethod) {
 		_authMethod = authMethod;
 	}
