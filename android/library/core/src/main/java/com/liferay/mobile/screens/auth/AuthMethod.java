@@ -14,6 +14,8 @@
 
 package com.liferay.mobile.screens.auth;
 
+import android.text.InputType;
+
 /**
  * @author Silvio Santos
  */
@@ -36,5 +38,11 @@ public enum AuthMethod {
 	}
 
 	private int _value;
+
+	public int getInputType() {
+		return (this == USER_ID)
+			? InputType.TYPE_CLASS_NUMBER
+			: InputType.TYPE_CLASS_TEXT;
+	}
 
 }

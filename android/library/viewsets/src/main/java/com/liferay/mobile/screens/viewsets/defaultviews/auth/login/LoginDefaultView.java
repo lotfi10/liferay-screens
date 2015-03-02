@@ -68,7 +68,7 @@ public class LoginDefaultView extends LinearLayout
 
 	@Override
 	public void onClick(View view) {
-		LoginScreenlet loginScreenlet = (LoginScreenlet)getParent();
+		LoginScreenlet loginScreenlet = (LoginScreenlet) getParent();
 
 		loginScreenlet.performUserAction(LoginScreenlet.LOGIN_ACTION);
 	}
@@ -90,29 +90,23 @@ public class LoginDefaultView extends LinearLayout
 	protected void onFinishInflate() {
 		super.onFinishInflate();
 
-		_loginEditText = (EditText)findViewById(R.id.login);
-		_passwordEditText = (EditText)findViewById(R.id.password);
+		_loginEditText = (EditText) findViewById(R.id.login);
+		_passwordEditText = (EditText) findViewById(R.id.password);
 
-		Button loginButton = (Button)findViewById(R.id.login_button);
+		Button loginButton = (Button) findViewById(R.id.login_button);
 		loginButton.setOnClickListener(this);
-
 	}
 
 	@Override
 	protected void onAttachedToWindow() {
-		int drawableId;
-		if (AuthMethod.USER_ID.equals(_authMethod)) {
-			_loginEditText.setInputType(InputType.TYPE_CLASS_NUMBER);
-			drawableId = R.drawable.default_user_icon;
-		} else if (AuthMethod.EMAIL.equals(_authMethod)) {
-			_loginEditText.setInputType(InputType.TYPE_CLASS_TEXT);
-			drawableId = R.drawable.default_mail_icon;
-		} else {
-			_loginEditText.setInputType(InputType.TYPE_CLASS_TEXT);
-			drawableId = R.drawable.default_user_icon;
-		}
+		_loginEditText.setInputType(_authMethod.getInputType());
 
-		_loginEditText.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(drawableId), null, null, null);
+		int drawableId = (_authMethod == AuthMethod.EMAIL)
+			? R.drawable.default_mail_icon
+			: R.drawable.default_user_icon;
+
+		_loginEditText.setCompoundDrawablesWithIntrinsicBounds(
+			getResources().getDrawable(drawableId), null, null, null);
 	}
 
 	private AuthMethod _authMethod;

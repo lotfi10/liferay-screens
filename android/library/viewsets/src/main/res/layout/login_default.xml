@@ -7,7 +7,7 @@
         style="@style/default_edit_text"
         android:drawableLeft="@drawable/default_mail_icon"
         android:hint="@string/email_address"
-        android:inputType="text"
+        android:inputType="textEmailAddress"
         android:text="test@liferay.com" />
 
     <EditText
