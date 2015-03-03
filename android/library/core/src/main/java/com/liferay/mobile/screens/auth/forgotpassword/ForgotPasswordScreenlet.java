@@ -37,8 +37,6 @@ public class ForgotPasswordScreenlet
 	extends BaseScreenlet<ForgotPasswordViewModel, ForgotPasswordInteractor>
 	implements ForgotPasswordListener {
 
-	public static final String REQUEST_PASSWORD_ACTION = "requestPassword";
-
 	public ForgotPasswordScreenlet(Context context) {
 		super(context, null);
 	}
@@ -53,10 +51,7 @@ public class ForgotPasswordScreenlet
 
 	@Override
 	public void onForgotPasswordRequestFailure(Exception e) {
-		ForgotPasswordListener listenerView =
-			(ForgotPasswordListener)getScreenletView();
-
-		listenerView.onForgotPasswordRequestFailure(e);
+		getViewModel().showFailedOperation(null, e);
 
 		if (_listener != null) {
 			_listener.onForgotPasswordRequestFailure(e);
@@ -65,10 +60,7 @@ public class ForgotPasswordScreenlet
 
 	@Override
 	public void onForgotPasswordRequestSuccess(boolean passwordSent) {
-		ForgotPasswordListener listenerView =
-			(ForgotPasswordListener)getScreenletView();
-
-		listenerView.onForgotPasswordRequestSuccess(passwordSent);
+		getViewModel().showFinishOperation(passwordSent);
 
 		if (_listener != null) {
 			_listener.onForgotPasswordRequestSuccess(passwordSent);
@@ -80,9 +72,7 @@ public class ForgotPasswordScreenlet
 	}
 
 	@Override
-	protected View createScreenletView(
-		Context context, AttributeSet attributes) {
-
+	protected View createScreenletView(Context context, AttributeSet attributes) {
 		TypedArray typedArray = context.getTheme().obtainStyledAttributes(
 			attributes, R.styleable.ForgotPasswordScreenlet, 0, 0);
 

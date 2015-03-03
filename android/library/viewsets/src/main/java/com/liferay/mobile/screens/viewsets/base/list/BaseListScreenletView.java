@@ -56,32 +56,6 @@ public abstract class BaseListScreenletView<E extends Parcelable, A extends Base
 		init(context);
     }
 
-	@Override
-	public void setListPage(int page, List<E> entries, int rowCount) {
-		A adapter = (A) getAdapter();
-		List<E> allEntries = createAllEntries(page, entries, rowCount, adapter);
-
-		adapter.setRowCount(rowCount);
-		adapter.setEntries(allEntries);
-		adapter.notifyDataSetChanged();
-	}
-
-	@Override
-	public void onPageNotFound(int row) {
-		BaseListScreenlet screenlet = ((BaseListScreenlet)getParent());
-
-		screenlet.loadPageForRow(row);
-	}
-
-	public void onItemClick(int position) {
-		BaseListScreenlet screenlet = ((BaseListScreenlet)getParent());
-		List<E> entries = ((A) getAdapter()).getEntries();
-		// we do not want to crash if the user manages to do a phantom click
-		if (!entries.isEmpty() && entries.size() > position && screenlet.getListener() != null) {
-			screenlet.getListener().onListItemSelected(entries.get(position));
-		}
-	}
-
 	protected void init(Context context) {
 		int itemLayoutId = R.layout.list_item_default;
 		int itemProgressLayoutId = R.layout.list_item_progress_default;
@@ -108,11 +82,48 @@ public abstract class BaseListScreenletView<E extends Parcelable, A extends Base
 
         int firstRowForPage = screenlet.getFirstRowForPage(page);
 
-        for (int i = 0; i < (serverEntries.size()); i++) {
+        for (int i = 0; i < serverEntries.size(); i++) {
             allEntries.set(i + firstRowForPage, serverEntries.get(i));
         }
         return allEntries;
     }
+
+	@Override
+	public void showStartOperation(String actionName) {
+		// TODO show progress?
+	}
+
+	@Override
+	public void showFinishOperation(String actionName) {
+		assert false : "Use showFinishOperation(page, entries, rowCount) instead";
+	}
+
+	@Override
+	public void showFinishOperation(int page, List<E> entries, int rowCount) {
+		A adapter = (A) getAdapter();
+		List<E> allEntries = createAllEntries(page, entries, rowCount, adapter);
+
+		adapter.setRowCount(rowCount);
+		adapter.setEntries(allEntries);
+		adapter.notifyDataSetChanged();
+	}
+
+	@Override
+	public void showFailedOperation(String actionName, Exception e) {
+		assert false : "Use showFinishOperation(page, entries, rowCount) instead";
+	}
+
+	@Override
+	public void showFinishOperation(int page, Exception e) {
+		// TODO show error?
+	}
+
+    @Override
+	public void onPageNotFound(int row) {
+		BaseListScreenlet screenlet = (BaseListScreenlet) getParent();
+
+		screenlet.loadPageForRow(row);
+	}
 
 	@Override
 	protected void onRestoreInstanceState(Parcelable inState) {
@@ -147,9 +158,7 @@ public abstract class BaseListScreenletView<E extends Parcelable, A extends Base
     protected abstract A createListAdapter(int itemLayoutId, int itemProgressLayoutId);
 
 	private static final String _STATE_ENTRIES = "entries";
-
 	private static final String _STATE_ROW_COUNT = "rowCount";
-
 	private static final String _STATE_SUPER = "super";
 
 }

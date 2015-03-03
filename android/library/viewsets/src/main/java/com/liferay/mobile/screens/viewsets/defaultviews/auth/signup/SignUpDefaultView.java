@@ -15,27 +15,22 @@
 package com.liferay.mobile.screens.viewsets.defaultviews.auth.signup;
 
 import android.content.Context;
-
 import android.util.AttributeSet;
-
 import android.view.View;
-
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
-import com.liferay.mobile.screens.auth.signup.SignUpListener;
 import com.liferay.mobile.screens.auth.signup.SignUpScreenlet;
 import com.liferay.mobile.screens.auth.signup.view.SignUpViewModel;
+import com.liferay.mobile.screens.context.User;
 import com.liferay.mobile.screens.viewsets.R;
-
-import org.json.JSONObject;
 
 /**
  * @author Silvio Santos
  */
 public class SignUpDefaultView extends LinearLayout
-	implements SignUpListener, SignUpViewModel, View.OnClickListener {
+	implements SignUpViewModel, View.OnClickListener {
 
 	public SignUpDefaultView(Context context) {
 		super(context, null);
@@ -85,18 +80,30 @@ public class SignUpDefaultView extends LinearLayout
 	}
 
 	@Override
+	public void showStartOperation(String actionName) {
+		// TODO show progress dialog
+	}
+
+	@Override
+	public void showFinishOperation(String actionName) {
+		assert false : "Use showFinishOperation(user) instead";
+	}
+
+	@Override
+	public void showFinishOperation(User user) {
+		// TODO show success?
+	}
+
+	@Override
+	public void showFailedOperation(String actionName, Exception e) {
+		// TODO show error?
+	}
+
+	@Override
 	public void onClick(View view) {
 		SignUpScreenlet signUpScreenlet = (SignUpScreenlet)getParent();
 
-		signUpScreenlet.performUserAction(SignUpScreenlet.SIGN_UP_ACTION);
-	}
-
-	@Override
-	public void onSignUpFailure(Exception e) {
-	}
-
-	@Override
-	public void onSignUpSuccess(JSONObject userAttributes) {
+		signUpScreenlet.performUserAction();
 	}
 
 	@Override

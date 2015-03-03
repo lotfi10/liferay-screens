@@ -15,29 +15,24 @@
 package com.liferay.mobile.screens.viewsets.defaultviews.auth.login;
 
 import android.content.Context;
-
 import android.text.InputType;
 import android.util.AttributeSet;
-
 import android.view.View;
-
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import com.liferay.mobile.screens.auth.AuthMethod;
-import com.liferay.mobile.screens.auth.login.LoginListener;
 import com.liferay.mobile.screens.auth.login.LoginScreenlet;
 import com.liferay.mobile.screens.auth.login.view.LoginViewModel;
+import com.liferay.mobile.screens.context.User;
 import com.liferay.mobile.screens.viewsets.R;
-
-import org.json.JSONObject;
 
 /**
  * @author Silvio Santos
  */
 public class LoginDefaultView extends LinearLayout
-	implements LoginViewModel, View.OnClickListener, LoginListener {
+	implements LoginViewModel, View.OnClickListener {
 
 	public LoginDefaultView(Context context) {
 		super(context, null);
@@ -67,19 +62,30 @@ public class LoginDefaultView extends LinearLayout
 	}
 
 	@Override
+	public void showStartOperation(String actionName) {
+		//TODO show progress dialog
+	}
+
+	@Override
+	public void showFinishOperation(String actionName) {
+		assert false : "Use showFinishOperation(user) instead";
+	}
+
+	@Override
+	public void showFinishOperation(User user) {
+		// TODO show success
+	}
+
+	@Override
+	public void showFailedOperation(String actionName, Exception e) {
+		//TODO show login error to user
+	}
+
+	@Override
 	public void onClick(View view) {
 		LoginScreenlet loginScreenlet = (LoginScreenlet) getParent();
 
-		loginScreenlet.performUserAction(LoginScreenlet.LOGIN_ACTION);
-	}
-
-	@Override
-	public void onLoginFailure(Exception e) {
-		//TODO show login error to user??
-	}
-
-	@Override
-	public void onLoginSuccess(JSONObject userAttributes) {
+		loginScreenlet.performUserAction();
 	}
 
 	public void setAuthMethod(AuthMethod authMethod) {

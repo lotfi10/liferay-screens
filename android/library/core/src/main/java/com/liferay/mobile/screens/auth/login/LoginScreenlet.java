@@ -29,8 +29,7 @@ import com.liferay.mobile.screens.auth.login.interactor.LoginInteractorImpl;
 import com.liferay.mobile.screens.auth.login.view.LoginViewModel;
 import com.liferay.mobile.screens.base.BaseScreenlet;
 import com.liferay.mobile.screens.context.SessionContext;
-
-import org.json.JSONObject;
+import com.liferay.mobile.screens.context.User;
 
 import static com.liferay.mobile.screens.context.storage.CredentialsStoreBuilder.*;
 
@@ -40,8 +39,6 @@ import static com.liferay.mobile.screens.context.storage.CredentialsStoreBuilder
 public class LoginScreenlet
 	extends BaseScreenlet<LoginViewModel, LoginInteractor>
 	implements LoginListener {
-
-	public static final String LOGIN_ACTION = "login";
 
 	public LoginScreenlet(Context context) {
 		super(context, null);
@@ -57,8 +54,7 @@ public class LoginScreenlet
 
 	@Override
 	public void onLoginFailure(Exception e) {
-		LoginListener listenerView = (LoginListener)getScreenletView();
-		listenerView.onLoginFailure(e);
+		getViewModel().showFailedOperation(null, e);
 
 		if (_listener != null) {
 			_listener.onLoginFailure(e);
@@ -66,12 +62,11 @@ public class LoginScreenlet
 	}
 
 	@Override
-	public void onLoginSuccess(JSONObject userAttributes) {
-		LoginListener listenerView = (LoginListener)getScreenletView();
-		listenerView.onLoginSuccess(userAttributes);
+	public void onLoginSuccess(User user) {
+		getViewModel().showFinishOperation(user);
 
 		if (_listener != null) {
-			_listener.onLoginSuccess(userAttributes);
+			_listener.onLoginSuccess(user);
 		}
 
 		SessionContext.storeSession(_credentialsStore);

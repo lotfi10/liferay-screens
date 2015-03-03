@@ -24,11 +24,11 @@ import android.view.View;
 
 import com.liferay.mobile.screens.R;
 import com.liferay.mobile.screens.base.BaseScreenlet;
-import com.liferay.mobile.screens.base.view.BaseViewModel;
 import com.liferay.mobile.screens.context.LiferayServerContext;
 import com.liferay.mobile.screens.context.SessionContext;
 import com.liferay.mobile.screens.webcontentdisplay.interactor.WebContentDisplayInteractor;
 import com.liferay.mobile.screens.webcontentdisplay.interactor.WebContentDisplayInteractorImpl;
+import com.liferay.mobile.screens.webcontentdisplay.view.WebContentDisplayViewModel;
 
 import java.util.Locale;
 
@@ -36,7 +36,7 @@ import java.util.Locale;
  * @author Jose Manuel Navarro
  */
 public class WebContentDisplayScreenlet
-		extends BaseScreenlet<BaseViewModel, WebContentDisplayInteractor>
+		extends BaseScreenlet<WebContentDisplayViewModel, WebContentDisplayInteractor>
 		implements WebContentDisplayListener {
 
 	public WebContentDisplayScreenlet(Context context) {
@@ -52,20 +52,16 @@ public class WebContentDisplayScreenlet
 	}
 
 	public void load() throws Exception {
-		Locale locale = getResources().getConfiguration().locale;
-
-		getInteractor().load(_groupId, _articleId, locale);
+		performUserAction();
 	}
 
 	@Override
 	public void onWebContentFailure(WebContentDisplayScreenlet source, Exception e) {
+		getViewModel().showFailedOperation(null, e);
+
 		if (_listener != null) {
 			_listener.onWebContentFailure(this, e);
 		}
-
-		WebContentDisplayListener listenerView = (WebContentDisplayListener)getScreenletView();
-
-		listenerView.onWebContentFailure(this, e);
 	}
 
 	@Override
@@ -80,13 +76,7 @@ public class WebContentDisplayScreenlet
 			}
 		}
 
-		WebContentDisplayListener listenerView = (WebContentDisplayListener)getScreenletView();
-
-		String viewHtml = listenerView.onWebContentReceived(this, modifiedHtml);
-
-		if (viewHtml != null) {
-			modifiedHtml = viewHtml;
-		}
+		getViewModel().showFinishOperation(modifiedHtml);
 
 		return modifiedHtml;
 	}
@@ -138,8 +128,17 @@ public class WebContentDisplayScreenlet
 	}
 
 	@Override
-	protected void onUserAction(String userActionName, WebContentDisplayInteractor interactor, Object... args) {
-		// No user action from UI
+	protected void onUserAction(
+		String userActionName, WebContentDisplayInteractor interactor, Object... args) {
+
+		Locale locale = getResources().getConfiguration().locale;
+
+		try {
+			getInteractor().load(_groupId, _articleId, locale);
+		}
+		catch (Exception e) {
+			onWebContentFailure(this, e);
+		}
 	}
 
 	@Override

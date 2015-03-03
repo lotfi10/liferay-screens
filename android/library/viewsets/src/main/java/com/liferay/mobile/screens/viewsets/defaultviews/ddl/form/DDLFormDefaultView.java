@@ -76,7 +76,7 @@ public class DDLFormDefaultView
 	}
 
 	@Override
-	public void setValidationFailedFields(Map<Field, Boolean> fieldResults, boolean autoscroll) {
+	public void showValidationResults(Map<Field, Boolean> fieldResults, boolean autoscroll) {
 		boolean scrolled = false;
 
 		for (int i = 0; i < _fieldsContainerView.getChildCount(); i++) {
@@ -97,31 +97,84 @@ public class DDLFormDefaultView
 	}
 
 	@Override
-	public void setRecordFields(Record record) {
-		_fieldsContainerView.removeAllViews();
+	public void showStartOperation(String actionName) {
+		assert false : "Use showStartOperation(actionName, argument) instead";
+	}
 
-		DDLFormScreenlet screenlet = getDDLFormScreenlet();
+	@Override
+	public void showStartOperation(String actionName, Object argument) {
+		// TODO show progress dialog?
 
-		int fieldCount = (record == null) ? 0 : record.getFieldCount();
+		if (actionName.equals(DDLFormScreenlet.UPLOAD_DOCUMENT_ACTION)) {
+			DocumentField documentField = (DocumentField) argument;
 
-		int submitButtonVisibility;
-
-		if (fieldCount > 0 && screenlet.isShowSubmitButton()) {
-			submitButtonVisibility = VISIBLE;
-		}
-		else {
-			submitButtonVisibility = GONE;
-		}
-
-		_submitButton.setVisibility(submitButtonVisibility);
-
-		for (int i = 0; i < fieldCount; ++i) {
-			addFieldView(record.getField(i), i);
+			findFieldView(documentField).refresh();
 		}
 	}
 
 	@Override
-	public void setRecordValues(Record record) {
+	public void showFinishOperation(String actionName) {
+		showFinishOperation(actionName, null);
+	}
+
+	@Override
+	public void showFinishOperation(String actionName, Object argument) {
+		if (actionName.equals(DDLFormScreenlet.LOAD_FORM_ACTION)) {
+			Record record = (Record) argument;
+
+			showFormFields(record);
+		}
+		else if (actionName.equals(DDLFormScreenlet.LOAD_RECORD_ACTION)) {
+			showRecordValues();
+		}
+		else if (actionName.equals(DDLFormScreenlet.UPLOAD_DOCUMENT_ACTION)) {
+			DocumentField documentField = (DocumentField) argument;
+
+			findFieldView(documentField).refresh();
+		}
+	}
+
+	@Override
+	public void showFailedOperation(String actionName, Exception e) {
+		showFailedOperation(actionName, e, null);
+	}
+
+	@Override
+	public void showFailedOperation(String actionName, Exception e, Object argument) {
+		// TODO show error?
+
+		if (actionName.equals(DDLFormScreenlet.LOAD_FORM_ACTION)) {
+			clearFormFields();
+		}
+		else if (actionName.equals(DDLFormScreenlet.UPLOAD_DOCUMENT_ACTION)) {
+			DocumentField documentField = (DocumentField) argument;
+
+			findFieldView(documentField).refresh();
+		}
+	}
+
+	@Override
+	public void showFormFields(Record record) {
+		_fieldsContainerView.removeAllViews();
+
+		for (int i = 0; i < record.getFieldCount(); ++i) {
+			addFieldView(record.getField(i), i);
+		}
+
+		if (getDDLFormScreenlet().isShowSubmitButton()) {
+			_submitButton.setVisibility(VISIBLE);
+		}
+		else {
+			_submitButton.setVisibility(GONE);
+		}
+	}
+
+	protected void clearFormFields() {
+		_fieldsContainerView.removeAllViews();
+		_submitButton.setVisibility(GONE);
+	}
+
+	protected void showRecordValues() {
 		for (int i = 0; i < _fieldsContainerView.getChildCount(); i++) {
 			DDLFieldViewModel viewModel = (DDLFieldViewModel) _fieldsContainerView.getChildAt(i);
 			viewModel.refresh();
@@ -137,21 +190,6 @@ public class DDLFormDefaultView
 		} else {
 			getDDLFormScreenlet().startUpload((DocumentField) view.getTag());
 		}
-	}
-
-	@Override
-	public void showStartDocumentUpload(DocumentField documentField) {
-		findFieldView(documentField).refresh();
-	}
-
-	@Override
-	public void showDocumentUploaded(DocumentField documentField) {
-		findFieldView(documentField).refresh();
-	}
-
-	@Override
-	public void showDocumentUploadFailed(DocumentField documentField) {
-		findFieldView(documentField).refresh();
 	}
 
 	protected DDLFormScreenlet getDDLFormScreenlet() {

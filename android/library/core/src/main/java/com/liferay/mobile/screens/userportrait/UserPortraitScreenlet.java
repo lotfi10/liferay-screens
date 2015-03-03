@@ -23,17 +23,17 @@ import android.view.View;
 
 import com.liferay.mobile.screens.R;
 import com.liferay.mobile.screens.base.BaseScreenlet;
-import com.liferay.mobile.screens.base.view.BaseViewModel;
 import com.liferay.mobile.screens.userportrait.interactor.UserPortraitInteractor;
 import com.liferay.mobile.screens.userportrait.interactor.UserPortraitInteractorImpl;
 import com.liferay.mobile.screens.userportrait.interactor.UserPortraitInteractorListener;
+import com.liferay.mobile.screens.userportrait.view.UserPortraitViewModel;
 
 /**
  * @author Javier Gamarra
  * @author Jose Manuel Navarro
  */
 public class UserPortraitScreenlet
-	extends BaseScreenlet<BaseViewModel, UserPortraitInteractor>
+	extends BaseScreenlet<UserPortraitViewModel, UserPortraitInteractor>
 	implements UserPortraitInteractorListener {
 
 	public UserPortraitScreenlet(Context context) {
@@ -48,20 +48,13 @@ public class UserPortraitScreenlet
 		super(context, attributes, defaultStyle);
 	}
 
-	public void load() throws Exception {
-		if (_userId != 0) {
-			getInteractor().load(_userId);
-		}
-		else {
-			getInteractor().load(_male, _portraitId, _uuid);
-		}
+	public void load() {
+		performUserAction();
 	}
 
 	@Override
 	public void onStartUserPortraitRequest() {
-		UserPortraitInteractorListener view = (UserPortraitInteractorListener)getScreenletView();
-
-		view.onStartUserPortraitRequest();
+		getViewModel().showStartOperation(null);
 	}
 
 	@Override
@@ -76,9 +69,9 @@ public class UserPortraitScreenlet
 			}
 		}
 
-		UserPortraitInteractorListener view = (UserPortraitInteractorListener)getScreenletView();
+		getViewModel().showFinishOperation(finalImage);
 
-		return view.onEndUserPortraitRequest(finalImage);
+		return finalImage;
 	}
 
 	@Override
@@ -87,8 +80,7 @@ public class UserPortraitScreenlet
 			_listener.onUserPortraitFailure(this, e);
 		}
 
-		UserPortraitInteractorListener view = (UserPortraitInteractorListener)getScreenletView();
-		view.onUserPortraitFailure(e);
+		getViewModel().showFailedOperation(null, e);
 	}
 
 	public void setListener(UserPortraitListener listener) {
@@ -142,13 +134,10 @@ public class UserPortraitScreenlet
 		TypedArray typedArray = context.getTheme().obtainStyledAttributes(
 			attributes, R.styleable.UserPortraitScreenlet, 0, 0);
 
-		_autoLoad = typedArray.getBoolean(
-			R.styleable.UserPortraitScreenlet_autoLoad, true);
-
+		_autoLoad = typedArray.getBoolean(R.styleable.UserPortraitScreenlet_autoLoad, true);
 		_male = typedArray.getBoolean(R.styleable.UserPortraitScreenlet_male, true);
 		_portraitId = typedArray.getInt(R.styleable.UserPortraitScreenlet_portraitId, 0);
 		_uuid = typedArray.getString(R.styleable.UserPortraitScreenlet_uuid);
-
 		_userId = typedArray.getInt(R.styleable.UserPortraitScreenlet_userId, 0);
 
 		int layoutId = typedArray.getResourceId(R.styleable.UserPortraitScreenlet_layoutId, 0);
@@ -166,7 +155,20 @@ public class UserPortraitScreenlet
 	}
 
 	@Override
-	protected void onUserAction(String userActionName, UserPortraitInteractor interactor, Object... args) {
+	protected void onUserAction(
+		String userActionName, UserPortraitInteractor interactor, Object... args) {
+
+		try {
+			if (_userId != 0) {
+				getInteractor().load(_userId);
+			}
+			else {
+				getInteractor().load(_male, _portraitId, _uuid);
+			}
+		}
+		catch (Exception e) {
+			onUserPortraitFailure(e);
+		}
 	}
 
 	@Override

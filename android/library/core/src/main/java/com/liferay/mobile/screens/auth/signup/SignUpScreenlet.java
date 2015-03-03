@@ -30,11 +30,10 @@ import com.liferay.mobile.screens.auth.signup.view.SignUpViewModel;
 import com.liferay.mobile.screens.base.BaseScreenlet;
 import com.liferay.mobile.screens.context.LiferayServerContext;
 import com.liferay.mobile.screens.context.SessionContext;
+import com.liferay.mobile.screens.context.User;
 import com.liferay.mobile.screens.context.storage.CredentialsStoreBuilder.*;
 
 import java.util.Locale;
-
-import org.json.JSONObject;
 
 /**
  * @author Silvio Santos
@@ -42,8 +41,6 @@ import org.json.JSONObject;
 public class SignUpScreenlet
 	extends BaseScreenlet<SignUpViewModel, SignUpInteractor>
 	implements SignUpListener {
-
-	public static final String SIGN_UP_ACTION = "signUp";
 
 	public SignUpScreenlet(Context context) {
 		super(context, null);
@@ -59,9 +56,7 @@ public class SignUpScreenlet
 
 	@Override
 	public void onSignUpFailure(Exception e) {
-		SignUpListener listener = (SignUpListener)getScreenletView();
-
-		listener.onSignUpFailure(e);
+		getViewModel().showFailedOperation(null, e);
 
 		if (_listener != null) {
 			_listener.onSignUpFailure(e);
@@ -69,12 +64,11 @@ public class SignUpScreenlet
 	}
 
 	@Override
-	public void onSignUpSuccess(JSONObject userAttributes) {
-		SignUpListener listenerView = (SignUpListener)getScreenletView();
-		listenerView.onSignUpSuccess(userAttributes);
+	public void onSignUpSuccess(User user) {
+		getViewModel().showFinishOperation(user);
 
 		if (_listener != null) {
-			_listener.onSignUpSuccess(userAttributes);
+			_listener.onSignUpSuccess(user);
 		}
 
 		if (_autoLogin) {
@@ -83,10 +77,10 @@ public class SignUpScreenlet
 			String password = signUpViewModel.getPassword();
 
 			SessionContext.createSession(emailAddress, password);
-			SessionContext.setUserAttributes(userAttributes);
+			SessionContext.setLoggedUser(user);
 
 			if (_autoLoginListener != null) {
-				_autoLoginListener.onLoginSuccess(userAttributes);
+				_autoLoginListener.onLoginSuccess(user);
 			}
 
 			SessionContext.storeSession(_credentialsStore);

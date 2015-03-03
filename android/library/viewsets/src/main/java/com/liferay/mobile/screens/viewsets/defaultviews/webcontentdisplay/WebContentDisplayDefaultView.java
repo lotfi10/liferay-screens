@@ -15,44 +15,36 @@
 package com.liferay.mobile.screens.viewsets.defaultviews.webcontentdisplay;
 
 import android.content.Context;
-
 import android.util.AttributeSet;
-
 import android.webkit.WebView;
 
-import com.liferay.mobile.screens.base.view.BaseViewModel;
 import com.liferay.mobile.screens.context.LiferayServerContext;
-import com.liferay.mobile.screens.webcontentdisplay.WebContentDisplayListener;
-import com.liferay.mobile.screens.webcontentdisplay.WebContentDisplayScreenlet;
+import com.liferay.mobile.screens.webcontentdisplay.view.WebContentDisplayViewModel;
 
 /**
  * @author Silvio Santos
  */
-public class WebContentDisplayDefaultView extends WebView
-	implements BaseViewModel, WebContentDisplayListener {
+public class WebContentDisplayDefaultView extends WebView implements WebContentDisplayViewModel {
 
 	public WebContentDisplayDefaultView(Context context) {
 		super(context, null);
 	}
 
 	public WebContentDisplayDefaultView(Context context, AttributeSet attributes) {
-
 		super(context, attributes, 0);
 	}
 
-	public WebContentDisplayDefaultView(
-		Context context, AttributeSet attributes, int defaultStyle) {
-
+	public WebContentDisplayDefaultView(Context context, AttributeSet attributes, int defaultStyle) {
 		super(context, attributes, defaultStyle);
 	}
 
 	@Override
-	public void onWebContentFailure(WebContentDisplayScreenlet source, Exception e) {
-		//TODO show load error to user??
+	public void showStartOperation(String actionName) {
+		// TODO show progress dialog
 	}
 
 	@Override
-	public String onWebContentReceived(WebContentDisplayScreenlet source, String html) {
+	public void showFinishOperation(String html) {
 		String styledHtml =
 			STYLES + "<div class=\"MobileCSS\">" + html + "</div>";
 
@@ -60,8 +52,11 @@ public class WebContentDisplayDefaultView extends WebView
 		loadDataWithBaseURL(
 			LiferayServerContext.getServer(), styledHtml, "text/html", "utf-8",
 			null);
+	}
 
-		return html;
+	@Override
+	public void showFailedOperation(String actionName, Exception e) {
+		// TODO show error
 	}
 
 	private static final String STYLES =
